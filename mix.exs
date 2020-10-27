@@ -13,7 +13,7 @@ defmodule LogstashBackend.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :timex, :jason]]
+    [applications: [:logger, :timex, :tzdata, :jason]]
   end
 
   defp deps do
