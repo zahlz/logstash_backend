@@ -18,6 +18,7 @@ defmodule LogstashBackend do
   use Timex
 
   def init({__MODULE__, name}) do
+    Application.ensure_all_started(:timex)
     {:ok, configure(name, [])}
   end
 
