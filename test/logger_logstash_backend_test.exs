@@ -39,9 +39,9 @@ defmodule LoggerLogstashBackendTest do
   end
 
   test "can log" do
-    Logger.info "hello world", [key1: "field1"]
+    Logger.info("hello world", [key1: "field1"])
     json = get_log()
-    {:ok, data} = JSX.decode json
+    {:ok, data} = Jason.decode(json)
     assert data["type"] === "some_app"
     assert data["message"] === "hello world"
     expected = %{
@@ -62,9 +62,9 @@ defmodule LoggerLogstashBackendTest do
   end
 
   test "can log pids" do
-    Logger.info "pid", [pid_key: self()]
+    Logger.info("pid", [pid_key: self()])
     json = get_log()
-    {:ok, data} = JSX.decode json
+    {:ok, data} = Jason.decode(json)
     assert data["type"] === "some_app"
     assert data["message"] === "pid"
     expected = %{
