@@ -90,7 +90,7 @@ defmodule LogstashBackend do
         milliseconds * 1000
       )
 
-    ts = Timex.to_datetime(ts, Timezone.local())
+    ts = Timex.to_datetime(ts, :local)
 
     json =
       Jason.encode!(%{
