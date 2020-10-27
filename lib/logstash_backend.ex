@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-defmodule LoggerLogstashBackend do
+defmodule LogstashBackend do
   @behaviour :gen_event
   use Timex
 

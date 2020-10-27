@@ -1,10 +1,10 @@
-defmodule LoggerLogstashBackend.Mixfile do
+defmodule LogstashBackend.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :logger_logstash_backend,
-     name: "logger_logstash_backend",
-     source_url: "https://github.com/marcelog/logger_logstash_backend",
+    [app: :logstash_backend,
+     name: "logstash_backend",
+     source_url: "https://github.com/zahlz/logstash_backend",
      version: "5.0.0",
      elixir: "~> 1.3",
      description: description(),

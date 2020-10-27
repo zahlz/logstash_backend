@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/marcelog/logger_logstash_backend.svg)](https://travis-ci.org/marcelog/logger_logstash_backend)
 
-LoggerLogstashBackend
+LogstashBackend
 =====================
 
 ## About
@@ -60,8 +60,8 @@ end
 ### Runtime
 
 ```elixir
-Logger.add_backend {LoggerLogstashBackend, :debug}
-Logger.configure {LoggerLogstashBackend, :debug},
+Logger.add_backend {LogstashBackend, :debug}
+Logger.configure {LogstashBackend, :debug},
   host: "127.0.0.1",
   port: 10001,
   level: :debug,
@@ -72,7 +72,7 @@ Logger.configure {LoggerLogstashBackend, :debug},
 
 ```elixir
 config :logger,
-  backends: [{LoggerLogstashBackend, :error_log}, :console]
+  backends: [{LogstashBackend, :error_log}, :console]
 
 config :logger, :error_log,
   host: "some.host.com",

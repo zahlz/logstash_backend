@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-defmodule LoggerLogstashBackendTest do
+defmodule LogstashBackendTest do
   use ExUnit.Case, async: false
   require Logger
   use Timex
 
-  @backend {LoggerLogstashBackend, :test}
+  @backend {LogstashBackend, :test}
   Logger.add_backend @backend
 
   setup do
@@ -47,7 +47,7 @@ defmodule LoggerLogstashBackendTest do
     expected = %{
       "function" => "test can log/1",
       "level" => "info",
-      "module" => "Elixir.LoggerLogstashBackendTest",
+      "module" => "Elixir.LogstashBackendTest",
       "pid" => (inspect self()),
       "some_metadata" => "go here",
       "line" => 42,
@@ -70,7 +70,7 @@ defmodule LoggerLogstashBackendTest do
     expected = %{
       "function" => "test can log pids/1",
       "level" => "info",
-      "module" => "Elixir.LoggerLogstashBackendTest",
+      "module" => "Elixir.LogstashBackendTest",
       "pid" => (inspect self()),
       "pid_key" => inspect(self()),
       "some_metadata" => "go here",
