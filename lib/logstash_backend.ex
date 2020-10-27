@@ -71,6 +71,7 @@ defmodule LogstashBackend do
       |> Enum.into(%{})
       |> Map.put(:level, to_string(level))
       |> inspect_pids
+      |> inspect_functions
 
       {_, fields} = Map.get_and_update(fields, :mfa, fn value ->
         case value do
@@ -135,6 +136,15 @@ defmodule LogstashBackend do
   defp inspect_pids(fields) when is_map(fields) do
     Enum.into(fields, %{}, fn {key, value} ->
       {key, inspect_pid(value)}
+    end)
+  end
+
+  defp inspect_function(func) when is_function(func), do: inspect(func)
+  defp inspect_function(value), do: value
+
+  defp inspect_functions(fields) when is_map(fields) do
+    Enum.into(fields, %{}, fn {key, value} ->
+      {key, inspect_function(value)}
     end)
   end
 end
