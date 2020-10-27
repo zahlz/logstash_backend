@@ -18,7 +18,6 @@ defmodule LogstashBackend do
   use Timex
 
   def init({__MODULE__, name}) do
-    Application.ensure_all_started(:timex)
     {:ok, configure(name, [])}
   end
 
@@ -44,6 +43,7 @@ defmodule LogstashBackend do
         %{level: min_level} = state
       ) do
     if is_nil(min_level) or Logger.compare_levels(level, min_level) != :lt do
+      Application.ensure_all_started(:timex)
       log_event(level, message, timestamp, metadata, state)
     end
 
