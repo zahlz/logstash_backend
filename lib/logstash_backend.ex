@@ -57,21 +57,13 @@ defmodule LogstashBackend do
     :ok
   end
 
-  defp log_event(
-         level,
-         msg,
-         ts,
-         md,
-         %{
-           host: host,
-           port: port,
-           type: type,
-           metadata: metadata,
-           socket: socket
-         }
-       ) do
-    IO.puts(inspect(md))
-
+  defp log_event(level, msg, ts, md, %{
+         host: host,
+         port: port,
+         type: type,
+         metadata: metadata,
+         socket: socket
+       }) do
     fields =
       md
       |> Keyword.merge(metadata)
