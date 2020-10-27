@@ -33,7 +33,8 @@ defmodule LoggerLogstashBackend do
     {:ok, state}
   end
 
-  def handle_event({_level, group_leader, {Logger, _, _, _}}, state) when node(group_leader) != node() do
+  def handle_event({_level, group_leader, {Logger, _, _, _}}, state)
+      when node(group_leader) != node() do
     {:ok, state}
   end
 
@@ -138,5 +139,4 @@ defmodule LoggerLogstashBackend do
       {key, inspect_pid(value)}
     end)
   end
-
 end
