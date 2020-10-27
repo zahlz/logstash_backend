@@ -71,7 +71,12 @@ defmodule LogstashBackend do
       |> Map.put(:level, to_string(level))
       |> inspect_pids
 
-    fields = %{fields | mfa: inspect(fields.mfa)}
+      {_, fields} = Map.get_and_update(fields, :mfa, fn value ->
+        case value do
+          nil -> :pop
+          val -> {val, inspect(val)}
+        end
+      end)
     {{year, month, day}, {hour, minute, second, milliseconds}} = ts
 
     {:ok, ts} =
