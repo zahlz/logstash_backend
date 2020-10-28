@@ -1,0 +1,8 @@
+[
+  verbose: true,
+  private: false,
+  skip: true,
+  exit: "low",
+  format: "txt",
+  threshold: "low"
+]

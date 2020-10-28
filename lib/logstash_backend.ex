@@ -17,6 +17,8 @@ defmodule LogstashBackend do
   @behaviour :gen_event
   use Timex
 
+  alias LogstashBackend.Transport
+
   def init({__MODULE__, name}) do
     {:ok, configure(name, [])}
   end
@@ -59,11 +61,10 @@ defmodule LogstashBackend do
   end
 
   defp log_event(level, msg, timestamp, md, %{
-         host: host,
-         port: port,
          type: type,
          metadata: metadata,
-         socket: socket
+         socket: socket,
+         connection_module: connection_module
        }) do
     fields =
       md
@@ -84,20 +85,39 @@ defmodule LogstashBackend do
         fields: fields
       })
 
-    :gen_udp.send(socket, host, port, to_charlist(json))
+    # :gen_udp.send(socket, host, port, to_charlist(json))
+    :ok = connection_module.send(socket, to_charlist(json <> "\n"))
   end
 
   defp configure(name, opts) do
-    env = Application.get_env(:logger, name, [])
-    opts = Keyword.merge(env, opts)
+
+    # Load / Construct opts from config and runtime options
+    opts =
+      :logger
+      |> Application.get_env(name, [])
+      |> Keyword.merge(opts)
+
     Application.put_env(:logger, name, opts)
 
+    # Get configuration values
     level = Keyword.get(opts, :level, :debug)
     metadata = Keyword.get(opts, :metadata, [])
     type = Keyword.get(opts, :type, "elixir")
+    connection_type = Keyword.get(opts, :connection_type, "ssl")
     host = Keyword.get(opts, :host)
     port = Keyword.get(opts, :port)
-    {:ok, socket} = :gen_udp.open(0)
+
+    tcp_options = Keyword.get(opts, :tcp_options, [])
+    ssl_options = Keyword.get(opts, :ssl_options, [])
+
+    {connection_module, options} =
+      case connection_type do
+        "ssl" -> {Transport.Ssl, ssl_options}
+        "tcp" -> {Transport.Tcp, tcp_options}
+        _ -> raise "invalid connection_type"
+      end
+
+    {:ok, socket} = connection_module.connect(host, port, options)
 
     %{
       name: name,
@@ -106,7 +126,8 @@ defmodule LogstashBackend do
       level: level,
       socket: socket,
       type: type,
-      metadata: metadata
+      metadata: metadata,
+      connection_module: connection_module
     }
   end
 
