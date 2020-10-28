@@ -120,7 +120,8 @@ defmodule LogstashBackend do
 
     {:ok, socket} = connection_module.connect(host, port, options)
 
-    Application.ensure_all_started(:timex)
+    Application.ensure_started(:tzdata)
+    Application.ensure_started(:timex)
     %{
       name: name,
       host: to_charlist(host),
