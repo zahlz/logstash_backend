@@ -112,7 +112,7 @@ defmodule LogstashBackend do
     {connection_module, options} =
       case connection_type do
         "ssl" ->
-          Application.ensure_started(:ssl)
+          Application.ensure_all_started(:ssl)
           {Transport.Ssl, ssl_options}
         "tcp" -> {Transport.Tcp, tcp_options}
         _ -> raise "invalid connection_type"
@@ -120,6 +120,7 @@ defmodule LogstashBackend do
 
     {:ok, socket} = connection_module.connect(host, port, options)
 
+    # Start all timex applications (without logger to avoid deadlock)
     Application.ensure_started(:combine)
     Application.ensure_started(:gettext)
     Application.ensure_started(:tzdata)
