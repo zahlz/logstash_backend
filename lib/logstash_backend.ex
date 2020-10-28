@@ -121,10 +121,10 @@ defmodule LogstashBackend do
     {:ok, socket} = connection_module.connect(host, port, options)
 
     # Start all timex applications (without logger to avoid deadlock)
-    Application.ensure_started(:combine)
-    Application.ensure_started(:gettext)
-    Application.ensure_started(:tzdata)
-    Application.ensure_started(:timex)
+    Application.ensure_all_started(:combine)
+    Application.ensure_all_started(:gettext)
+    Application.ensure_all_started(:tzdata)
+    Application.ensure_all_started(:timex)
     %{
       name: name,
       host: to_charlist(host),
