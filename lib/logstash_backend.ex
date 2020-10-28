@@ -45,7 +45,6 @@ defmodule LogstashBackend do
         %{level: min_level} = state
       ) do
     if is_nil(min_level) or Logger.compare_levels(level, min_level) != :lt do
-      Application.ensure_started(:timex)
       log_event(level, message, timestamp, metadata, state)
     end
 
@@ -121,6 +120,7 @@ defmodule LogstashBackend do
 
     {:ok, socket} = connection_module.connect(host, port, options)
 
+    Application.ensure_started(:timex)
     %{
       name: name,
       host: to_charlist(host),
