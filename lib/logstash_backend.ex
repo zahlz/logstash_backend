@@ -45,7 +45,7 @@ defmodule LogstashBackend do
         %{level: min_level} = state
       ) do
     if is_nil(min_level) or Logger.compare_levels(level, min_level) != :lt do
-      Application.ensure_all_started(:timex)
+      Application.ensure_started(:timex)
       log_event(level, message, timestamp, metadata, state)
     end
 
@@ -112,7 +112,9 @@ defmodule LogstashBackend do
 
     {connection_module, options} =
       case connection_type do
-        "ssl" -> {Transport.Ssl, ssl_options}
+        "ssl" ->
+          Application.ensure_started(:ssl)
+          {Transport.Ssl, ssl_options}
         "tcp" -> {Transport.Tcp, tcp_options}
         _ -> raise "invalid connection_type"
       end
