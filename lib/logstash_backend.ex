@@ -58,7 +58,7 @@ defmodule LogstashBackend do
     :ok
   end
 
-  defp log_event(level, msg, ts, md, %{
+  defp log_event(level, msg, timestamp, md, %{
          host: host,
          port: port,
          type: type,
@@ -68,36 +68,18 @@ defmodule LogstashBackend do
     fields =
       md
       |> Keyword.merge(metadata)
-      |> Enum.into(%{})
-      |> Map.put(:level, to_string(level))
-      |> inspect_pids
-      |> inspect_functions
+      |> Keyword.put(:level, to_string(level))
+      |> metadata_to_map()
 
-      {_, fields} = Map.get_and_update(fields, :mfa, fn value ->
-        case value do
-          nil -> :pop
-          val -> {val, inspect(val)}
-        end
-      end)
-    {{year, month, day}, {hour, minute, second, milliseconds}} = ts
-
-    {:ok, ts} =
-      NaiveDateTime.new(
-        year,
-        month,
-        day,
-        hour,
-        minute,
-        second,
-        milliseconds * 1000
-      )
-
-    ts = Timex.to_datetime(ts, :local)
+    ts =
+      timestamp
+      |> maybe_local_timestamp()
+      |> maybe_format_timestamp()
 
     json =
       Jason.encode!(%{
         type: type,
-        "@timestamp": Timex.format!(ts, "{ISO:Extended}"),
+        "@timestamp": ts,
         message: to_string(msg),
         fields: fields
       })
@@ -126,6 +108,53 @@ defmodule LogstashBackend do
       type: type,
       metadata: metadata
     }
+  end
+
+  # Maybe returns the local timestamp, otherwise the given timestamp / data is returned
+  defp maybe_local_timestamp({{year, month, day}, {hour, minute, second, milliseconds}} = timestamp) do
+    case NaiveDateTime.new(year, month, day, hour, minute, second, milliseconds * 1_000) do
+      {:ok, naive_timestamp} ->
+        case Timex.to_datetime(naive_timestamp, :local) do
+          {:error, _reason} ->
+            timestamp
+
+          local_timestamp ->
+            local_timestamp
+        end
+
+      {:error, _reason} ->
+        timestamp
+    end
+  end
+
+  defp maybe_local_timestamp(timestamp), do: timestamp
+
+  defp maybe_format_timestamp(timestamp) do
+    case Timex.format(timestamp, "{ISO:Extended}") do
+      {:ok, formatted_timestamp} ->
+        formatted_timestamp
+      {:error, _reason} ->
+        timestamp
+    end
+  end
+
+  # Converts the given metadata to a map, which is encodable by Jason
+  defp metadata_to_map(metadata) do
+    fields =
+      metadata
+      |> Enum.into(%{})
+      |> inspect_pids
+      |> inspect_functions
+
+    {_, fields} =
+      Map.get_and_update(fields, :mfa, fn value ->
+        case value do
+          nil -> :pop
+          val -> {val, inspect(val)}
+        end
+      end)
+
+    fields
   end
 
   # inspects the argument only if it is a pid
